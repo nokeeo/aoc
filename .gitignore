@@ -1,0 +1,9 @@
+.DS_STORE
+*.txt
+!CMakeLists.txt
+**/build/*
+**/CMakeFiles/*
+.vscode/*
+program
+*.cmake
+MakeFile
