@@ -155,52 +155,6 @@ namespace aoc {
     return distance / 2.f;
   }
 
-  template<typename T>
-  bool IsEdge(const Point& p, const Grid<T>& grid) {
-    return p.x == 0 || p.y == 0 || p.x == grid.width() - 1 || p.y == grid.height() - 1;
-  }
-
-  // std::vector<Point> PipeTravelNeighbors(const Point& p, const PipeGrid& grid) {
-  //   std::vector<std::pair<Point, const char*>> neighbors = grid.neighbors(p);
-  //   std::vector<Point> pipe_neighbors;
-  //   for (const auto& n : neighbors) {
-  //     if (DoPipesConnect(grid, p, n.first)) {
-  //       continue;
-  //     }
-      
-  //     auto n_pipe = kPipes.find(*n.second);
-  //     if (n_pipe == kPipes.end()) {
-  //       continue;
-  //     }
-
-  //     // Maybe include the direction of travel.
-  //     if ((n_pipe->second.direction & kPipes.find(*grid.at(p))->second.direction) != Direction::kNone) {
-  //       pipe_neighbors.push_back(n.first);
-  //     } 
-  //     // Direction dir = DirectionFromTo(p, n.first);
-  //     // dir |= Invert(dir); 
-  //   }
-  //   return pipe_neighbors;
-  // }
-
-  bool CanTravelToPoint(const Point& from, const Point& to, const Grid<uint8_t>& loop_grid, const PipeGrid& pipe_grid) {
-    Direction dir = DirectionFromTo(to, from);
-    dir |= Invert(dir);
-    auto pipe_neighbors = pipe_grid.pipe_neighbors(to);
-    auto p1 = kPipes.find(*pipe_grid.at(to));
-    for (auto& n : pipe_neighbors) {
-      if (DoPipesConnect(pipe_grid, to, n.first)) {
-        continue;
-      }
-      auto p2 = kPipes.find(*n.second);
-
-      if ((p2->second.direction & p1->second.direction & dir) != Direction::kNone) {
-        return true;
-      }
-    }
-    return false;
-  } 
-
   int Part2(std::ifstream& input) {
     std::pair<int, int> size = GetGridSize(input);
     PipeGrid grid(size.first, size.second, input); 
