@@ -1,19 +1,27 @@
 #include <vector>
 
 namespace aoc {
-struct Point {
-  int x = 0;
-  int y = 0;
+template<typename T>
+struct PointT{
+  T x = 0;
+  T y = 0;
 
-  bool operator==(const Point& other) const { return x == other.x && y == other.y; }
-  bool operator!=(const Point& other) const { return x != other.x || y != other.y; }
-  bool operator <= (const Point& other) {
+  bool operator==(const PointT& other) const { return x == other.x && y == other.y; }
+  bool operator!=(const PointT& other) const { return x != other.x || y != other.y; }
+  bool operator <= (const PointT& other) {
     if (y != other.y) {
       return y < other.y;
     }
     return x < other.x;
   }
+
+  PointT operator-(const PointT& other) const {
+    return {x - other.x, y - other.y};
+  }
 };
+
+using Point = PointT<int32_t>;
+using Point64 = PointT<int64_t>;
 
 template<typename T>
 class Grid {
@@ -66,7 +74,12 @@ class Grid {
     bool new_row_ = false;
   };
 
-  Grid(int w, int h) {
+  enum class NeighborMode {
+    kAll,
+    kOrthoginal,
+  };
+
+  Grid(int w, int h, NeighborMode neighbor_mode = NeighborMode::kAll) : neighbor_mode_(neighbor_mode) {
     rows_.reserve(h);
     for (int i = 0; i < h; i++) {
       rows_.push_back(std::vector<T>(w));
@@ -98,11 +111,19 @@ class Grid {
   Itr rbegin() { return Itr(this, {static_cast<int>(width() - 1), static_cast<int>(height() - 1)}); }
   Itr rend() { return Itr(this, {static_cast<int>(width() - 1), -1}); }
 
-  const bool InBounds(const Point& p) const {
+  bool InBounds(const Point& p) const {
     return p.x >= 0 && p.x < width() && p.y >= 0 && p.y < height(); 
   }
 
   std::vector<std::pair<Point, const T*>> neighbors(const Point& p) const {
+    if (neighbor_mode_ == NeighborMode::kOrthoginal) {
+      return ortho_neighbors(p);
+    }
+    return all_neighbors(p);
+  }
+
+  private:
+  std::vector<std::pair<Point, const T*>> all_neighbors(const Point& p) const {
     std::vector<std::pair<Point, const T*>> neighbors;
     neighbors.reserve(8); 
     Point n;
@@ -116,10 +137,39 @@ class Grid {
       }
     }
     return neighbors;
+  } 
+
+  std::vector<std::pair<Point, const T*>> ortho_neighbors(const Point& p) const {
+    std::vector<std::pair<Point, const T*>> neighbors;
+    neighbors.reserve(4);
+    // Top
+    Point n = {p.x, p.y - 1};
+    if (InBounds(n)) {
+      neighbors.push_back({n, at(n)});
+    }
+
+    // Right 
+    n = {p.x + 1, p.y};
+    if (InBounds(n)) {
+      neighbors.push_back({n, at(n)});
+    }
+
+    // Bottom 
+    n = {p.x, p.y + 1};
+    if (InBounds(n)) {
+      neighbors.push_back({n, at(n)});
+    }
+
+    // Left 
+    n = {p.x - 1, p.y};
+    if (InBounds(n)) {
+      neighbors.push_back({n, at(n)});
+    }
+    return neighbors;
   }
 
-  private:
   std::vector<std::vector<T>> rows_;
+  NeighborMode neighbor_mode_;
 };
 }  // namespace aoc
 

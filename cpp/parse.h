@@ -1,3 +1,4 @@
+#include <fstream>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -18,9 +19,9 @@ namespace aoc {
     T base = 0;
     bool parsing = false;
     for (int i = line.size() - 1; i >= 0; i--) {
-      if (line.at(i) == ' ') {
+      if (line.at(i) == ' ' || line.at(i) == '-') {
         if (parsing) {
-          nums.emplace_back(num);
+          nums.emplace_back(num * (line.at(i) == '-' ? -1 : 1));
           num = 0;
           base = 0;
         }
@@ -58,4 +59,16 @@ namespace aoc {
     }
     return splits;
   }
+
+    std::pair<int, int> GetGridSize(std::ifstream& input) {
+      std::string line;
+      int width = 0, height = 0;
+      while (std::getline(input, line)) {
+        ++height; 
+      }
+      width = line.size();
+      input.clear();
+      input.seekg(0);
+      return {width, height};
+    }
 }  // namespace aoc
