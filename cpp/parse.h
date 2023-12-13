@@ -13,13 +13,13 @@ namespace aoc {
   }
 
   template<typename T>
-  std::vector<T> ParseInts(const std::string& line) {
+  std::vector<T> ParseInts(const std::string& line, char delim = ' ') {
     std::vector<T> nums;
     T num = 0;
     T base = 0;
     bool parsing = false;
     for (int i = line.size() - 1; i >= 0; i--) {
-      if (line.at(i) == ' ' || line.at(i) == '-') {
+      if (line.at(i) == delim || line.at(i) == '-') {
         if (parsing) {
           nums.emplace_back(num * (line.at(i) == '-' ? -1 : 1));
           num = 0;
