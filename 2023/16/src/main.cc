@@ -93,24 +93,6 @@ namespace aoc {
     return neighbors;
   }
 
-  int Part1(std::ifstream& input) {
-    Grid<char> grid = CreateGrid(input);
-    std::vector<LightBeam> beams = {{{0, 0}, {1, 0}}};
-    std::unordered_set<LightBeam> visited;
-    std::unordered_set<Point> engaged;
-    while (!beams.empty()) {
-      auto beam = beams.erase(beams.end() - 1);
-      if (visited.find(*beam) != visited.end()) {
-        continue;
-      }
-      engaged.insert(beam->loc);
-      visited.insert(*beam);
-      std::vector<LightBeam> neighbors = BeamNeighbors(*beam, grid);
-      beams.insert(beams.end(), neighbors.begin(), neighbors.end());
-    }
-    return engaged.size();
-  }
-
   int GetEnergizedCount(const LightBeam& beam, const Grid<char>& grid, std::unordered_set<LightBeam>& visited, std::unordered_set<Point>& engaged, Grid<std::unordered_map<Point, int>>& cache) {
     if (visited.find(beam) != visited.end()) {
       return 0;
@@ -134,6 +116,14 @@ namespace aoc {
     // cache_map->insert_or_assign(beam.dir, count);
     return count; 
   } 
+
+  int Part1(std::ifstream& input) {
+    Grid<char> grid = CreateGrid(input);
+    std::unordered_set<LightBeam> visited;
+    std::unordered_set<Point> engaged;
+    Grid<std::unordered_map<Point, int>> cache(grid.width(), grid.height());
+    return GetEnergizedCount({{0, 0}, {1, 0}}, grid, visited, engaged, cache);
+  }
 
   int Part2(std::ifstream& input) {
     Grid<char> grid = CreateGrid(input);
