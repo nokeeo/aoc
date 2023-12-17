@@ -1,3 +1,5 @@
+#ifndef FREQUENCY_COUNTER_H_
+#define FREQUENCY_COUNTER_H_
 #include <unordered_map>
 
 namespace aoc {
@@ -46,3 +48,4 @@ namespace aoc {
     std::unordered_map<T, int32_t> counts_;
   };
 }
+#endif  // FREQUENCY_COUNTER_H_

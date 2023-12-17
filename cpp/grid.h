@@ -1,3 +1,5 @@
+#ifndef GRID_H_
+#define GRID_H_
 #include <vector>
 
 namespace aoc {
@@ -17,6 +19,14 @@ struct PointT{
 
   PointT operator-(const PointT& other) const {
     return {x - other.x, y - other.y};
+  }
+
+  PointT operator+(const PointT& other) const {
+    return {x + other.x, y + other.y};
+  }
+
+  PointT operator*(T scalar) const {
+    return {x * scalar, y * scalar};
   }
 };
 
@@ -184,3 +194,4 @@ struct std::hash<aoc::Point> {
              ^ (hash<int>()(p.y) << 1)) >> 1);
   }
 };
+#endif  // GRID_H_

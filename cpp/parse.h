@@ -1,3 +1,5 @@
+#ifndef PARSE_H_ 
+#define PARSE_H_
 #include <fstream>
 #include <sstream>
 #include <string>
@@ -72,3 +74,4 @@ namespace aoc {
       return {width, height};
     }
 }  // namespace aoc
+#endif  // PARSE_H_
