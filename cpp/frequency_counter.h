@@ -5,7 +5,7 @@
 namespace aoc {
   template<typename T>
   class FrequencyCounter {
-    static constexpr int32_t kNotFound = -1;
+    static constexpr int32_t kNotFound = 0;
     public:
     void Increment(const T& v) {
       int32_t count = 0;
