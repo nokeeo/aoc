@@ -106,9 +106,6 @@ int main(int argc, char* argv[]) {
   --day;
 
   bool should_bench_mark = args.contains("-b");
-  StopWatch stop_watch;
-
-  stop_watch.Start();
   RunPart(kDayLookUpTable[day].part_1, "Part 1", input_file, should_bench_mark);
   RunPart(kDayLookUpTable[day].part_2, "Part 2", input_file, should_bench_mark);
   return 0;
