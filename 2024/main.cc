@@ -8,6 +8,21 @@
 
 namespace {
 using namespace std::chrono;
+
+constexpr int kDefaultBenchmarkRunCount = 100;
+
+typedef struct Day {
+  std::function<int(std::ifstream&)> part_1;
+  std::function<int(std::ifstream&)> part_2;
+} Day;
+
+const std::array<Day, 3> kDayLookUpTable {{
+  {&aoc::D1P1, &aoc::D1P2},
+  {&aoc::D2P1, &aoc::D2P2},
+  {&aoc::D3P1, &aoc::D3P2},
+}};
+
+
 class StopWatch {
   public:
   void Start() {
@@ -22,9 +37,30 @@ class StopWatch {
   private:
   high_resolution_clock::time_point start_;
 };
-}  // namespace
 
-namespace aoc {
+void RunPart(std::function<int(std::ifstream&)> func, const std::string& title, std::ifstream& input, bool should_benchmark) {
+  int result = -1;
+  double time_ms = 0;
+  if (should_benchmark) {
+    StopWatch stop_watch;
+    for (int i = 0; i < kDefaultBenchmarkRunCount; ++i) {
+      stop_watch.Start();
+      result = func(input); 
+      time_ms += stop_watch.Stop();
+      input.clear();
+      input.seekg(0);
+    }
+  } else {
+    result = func(input);
+  }
+  std::cout << title << result << std::endl;
+
+  if (should_benchmark) {
+    std::cout << "Average runtime: " << time_ms / kDefaultBenchmarkRunCount << " ms" << std::endl;  
+  }
+  input.clear();
+  input.seekg(0);
+}
 
 std::unordered_map<std::string, std::string> ParseArgs(int argc, char* argv[]) {
   std::unordered_map<std::string, std::string> args;
@@ -50,22 +86,11 @@ bool ValidateArgs(const std::unordered_map<std::string, std::string>& args) {
   return true;
 }
 
-typedef struct Day {
-  std::function<int(std::ifstream&)> part_1;
-  std::function<int(std::ifstream&)> part_2;
-} Day;
-
-const std::array<Day, 3> kDayLookUpTable {{
-  {&D1P1, &D1P2},
-  {&D2P1, &D2P2},
-  {&D3P1, &D3P2},
-}};
-
-} // namespace aoc
+}  // namespace
 
 int main(int argc, char* argv[]) {
-  std::unordered_map<std::string, std::string> args = aoc::ParseArgs(argc, argv);
-  if (!aoc::ValidateArgs(args)) {
+  std::unordered_map<std::string, std::string> args = ParseArgs(argc, argv);
+  if (!ValidateArgs(args)) {
     std::cout << "Missing arguments" << std::endl;
     return -1;
   }
@@ -74,7 +99,7 @@ int main(int argc, char* argv[]) {
   input_file.open(args.at("-i"));
 
   int day = std::atoi(args.at("-d").c_str());
-  if (day <= 0 || day > aoc::kDayLookUpTable.size()) {
+  if (day <= 0 || day > kDayLookUpTable.size()) {
     std::cout << "Day " << day << " does not exist" << std::endl;
     return -1;
   }
@@ -84,22 +109,7 @@ int main(int argc, char* argv[]) {
   StopWatch stop_watch;
 
   stop_watch.Start();
-  int p1 = aoc::kDayLookUpTable[day].part_1(input_file); 
-  double time = stop_watch.Stop();
-  std::cout << "Part 1: " << p1; 
-  if (should_bench_mark) {
-    std::cout << " " << time << "ms"; 
-  }
-  std::cout << std::endl;
-
-  input_file.clear();
-  input_file.seekg(0);
-  stop_watch.Start();
-  int p2 = aoc::kDayLookUpTable[day].part_2(input_file); 
-  time = stop_watch.Stop();
-  std::cout << "Part 2: " << p2; 
-  if (should_bench_mark) {
-    std::cout << " " << time << "ms"; 
-  }
-  std::cout << std::endl;
+  RunPart(kDayLookUpTable[day].part_1, "Part 1", input_file, should_bench_mark);
+  RunPart(kDayLookUpTable[day].part_2, "Part 2", input_file, should_bench_mark);
+  return 0;
 }
