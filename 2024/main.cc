@@ -6,12 +6,36 @@
 #include "02/d02.h"
 #include "03/d03.h"
 
+namespace {
+using namespace std::chrono;
+class StopWatch {
+  public:
+  void Start() {
+    start_ = high_resolution_clock::now();
+  }
+
+  double Stop() {
+    duration<double, std::milli> duration = high_resolution_clock::now() - start_;
+    return duration.count();
+  }
+  
+  private:
+  high_resolution_clock::time_point start_;
+};
+}  // namespace
+
 namespace aoc {
 
 std::unordered_map<std::string, std::string> ParseArgs(int argc, char* argv[]) {
   std::unordered_map<std::string, std::string> args;
-  for (int i = 1; i + 1 < argc; i += 2) {
-    args.emplace(std::string(argv[i]), std::string(argv[i + 1]));
+  for (int i = 0; i < argc;) {
+    if (i + 1 < argc && !std::string(argv[i + 1]).starts_with("-")) {
+      args.emplace(std::string(argv[i]), std::string(argv[i + 1]));
+      i += 2;
+    } else {
+      args.emplace(std::string(argv[i]), "1");
+      i += 1;
+    }
   }
   return args;
 }
@@ -56,8 +80,26 @@ int main(int argc, char* argv[]) {
   }
   --day;
 
-  std::cout << "Part 1: " << aoc::kDayLookUpTable[day].part_1(input_file) << std::endl;
+  bool should_bench_mark = args.contains("-b");
+  StopWatch stop_watch;
+
+  stop_watch.Start();
+  int p1 = aoc::kDayLookUpTable[day].part_1(input_file); 
+  double time = stop_watch.Stop();
+  std::cout << "Part 1: " << p1; 
+  if (should_bench_mark) {
+    std::cout << " " << time << "ms"; 
+  }
+  std::cout << std::endl;
+
   input_file.clear();
   input_file.seekg(0);
-  std::cout << "Part 2: " << aoc::kDayLookUpTable[day].part_2(input_file) << std::endl;
+  stop_watch.Start();
+  int p2 = aoc::kDayLookUpTable[day].part_2(input_file); 
+  time = stop_watch.Stop();
+  std::cout << "Part 2: " << p2; 
+  if (should_bench_mark) {
+    std::cout << " " << time << "ms"; 
+  }
+  std::cout << std::endl;
 }
