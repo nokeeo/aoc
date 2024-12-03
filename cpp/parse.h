@@ -6,11 +6,11 @@
 #include <vector>
 
 namespace aoc {
-  bool IsDigit(char c) {
+  static bool IsDigit(char c) {
     return c >= '0' && c <= '9';
   }
 
-  int8_t CharToDigit(char c) {
+  static int8_t CharToDigit(char c) {
     return static_cast<int8_t>(c - '0');
   }
 
@@ -43,7 +43,7 @@ namespace aoc {
     return nums;
   }
 
-  std::vector<std::string> Split(const std::string& str, char delim) {
+  static std::vector<std::string> Split(const std::string& str, char delim) {
     std::vector<std::string> splits;
     std::stringstream ss;
     for (int i = 0; i < str.size(); ++i) {
@@ -62,16 +62,16 @@ namespace aoc {
     return splits;
   }
 
-    std::pair<int, int> GetGridSize(std::ifstream& input) {
-      std::string line;
-      int width = 0, height = 0;
-      while (std::getline(input, line)) {
-        ++height; 
-      }
-      width = line.size();
-      input.clear();
-      input.seekg(0);
-      return {width, height};
+  static std::pair<int, int> GetGridSize(std::ifstream& input) {
+    std::string line;
+    int width = 0, height = 0;
+    while (std::getline(input, line)) {
+      ++height; 
     }
+    width = line.size();
+    input.clear();
+    input.seekg(0);
+    return {width, height};
+  }
 }  // namespace aoc
 #endif  // PARSE_H_

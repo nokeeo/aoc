@@ -1,13 +1,13 @@
-#include <fstream>
+#include "d02.h"
+
 #include <iostream>
 #include <vector>
 
 #include "parse.h"
 
 namespace aoc {
-const std::string kInputFileName = "p1.txt";
 
-static bool IsSafe(const std::vector<int>& nums, int* out_index) {
+bool IsSafe(const std::vector<int>& nums, int* out_index) {
   int direction = 0;
   for (int i = 1; i < nums.size(); ++i) {
     int diff = nums[i] - nums[i - 1];
@@ -24,7 +24,7 @@ static bool IsSafe(const std::vector<int>& nums, int* out_index) {
   return true;
 }
 
-static int Part1(std::ifstream& input) {
+int D2P1(std::ifstream& input) {
   std::string line;
   int safe_count = 0;
   while (std::getline(input, line)) {
@@ -36,7 +36,7 @@ static int Part1(std::ifstream& input) {
   return safe_count;
 }
 
-static int Part2(std::ifstream& input) {
+int D2P2(std::ifstream& input) {
   std::string line;
   int safe_count = 0;
   int line_count = 0;
@@ -66,12 +66,3 @@ static int Part2(std::ifstream& input) {
 }
 
 }  // namespace aoc
-
-int main() {
-  std::ifstream input_file;
-  input_file.open(aoc::kInputFileName);
-  std::cout << "Part 1: " << aoc::Part1(input_file) << std::endl;
-  input_file.clear();
-  input_file.seekg(0);
-  std::cout << "Part 2: " << aoc::Part2(input_file) << std::endl;
-}

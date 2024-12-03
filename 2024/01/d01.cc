@@ -1,4 +1,5 @@
-#include <fstream>
+#include "d01.h"
+
 #include <iostream>
 #include <vector>
 
@@ -6,9 +7,8 @@
 #include "parse.h"
 
 namespace aoc {
-const std::string kInputFileName = "p1.txt";
 
-int Part1(std::ifstream& input) {
+int D1P1(std::ifstream& input) {
   std::string line;
   std::vector<int> left;
   std::vector<int> right;
@@ -27,7 +27,7 @@ int Part1(std::ifstream& input) {
   return total_distance;
 }
 
-int Part2(std::ifstream& input) {
+int D1P2(std::ifstream& input) {
   std::string line;
   std::vector<int> left;
   FrequencyCounter<int> right;
@@ -45,14 +45,3 @@ int Part2(std::ifstream& input) {
   return total_simalarity;
 }
 }  // namespace aoc
-
-int main() {
-  std::ifstream input_file;
-  input_file.open(aoc::kInputFileName);
-  int total = 0;
-  std::string line;
-  std::cout << "Part 1: " << aoc::Part1(input_file) << std::endl;
-  input_file.clear();
-  input_file.seekg(0);
-  std::cout << "Part 2: " << aoc::Part2(input_file) << std::endl;
-}
