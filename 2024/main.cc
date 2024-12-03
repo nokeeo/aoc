@@ -4,6 +4,7 @@
 
 #include "01/d01.h"
 #include "02/d02.h"
+#include "03/d03.h"
 
 namespace aoc {
 
@@ -30,9 +31,10 @@ typedef struct Day {
   std::function<int(std::ifstream&)> part_2;
 } Day;
 
-const std::array<Day, 2> kDayLookUpTable {{
+const std::array<Day, 3> kDayLookUpTable {{
   {&D1P1, &D1P2},
   {&D2P1, &D2P2},
+  {&D3P1, &D3P2},
 }};
 
 } // namespace aoc
