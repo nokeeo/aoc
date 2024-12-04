@@ -5,6 +5,7 @@
 #include "01/d01.h"
 #include "02/d02.h"
 #include "03/d03.h"
+#include "04/d04.h"
 
 namespace {
 using namespace std::chrono;
@@ -16,10 +17,11 @@ typedef struct Day {
   std::function<int(std::ifstream&)> part_2;
 } Day;
 
-const std::array<Day, 3> kDayLookUpTable {{
+const std::array<Day, 4> kDayLookUpTable {{
   {&aoc::D1P1, &aoc::D1P2},
   {&aoc::D2P1, &aoc::D2P2},
   {&aoc::D3P1, &aoc::D3P2},
+  {&aoc::D4P1, &aoc::D4P2},
 }};
 
 
@@ -53,7 +55,7 @@ void RunPart(std::function<int(std::ifstream&)> func, const std::string& title, 
   } else {
     result = func(input);
   }
-  std::cout << title << result << std::endl;
+  std::cout << title << ": " << result << std::endl;
 
   if (should_benchmark) {
     std::cout << "Average runtime: " << time_ms / kDefaultBenchmarkRunCount << " ms" << std::endl;  
