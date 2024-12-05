@@ -6,6 +6,7 @@
 #include "02/d02.h"
 #include "03/d03.h"
 #include "04/d04.h"
+#include "05/d05.h"
 
 namespace {
 using namespace std::chrono;
@@ -17,11 +18,12 @@ typedef struct Day {
   std::function<int(std::ifstream&)> part_2;
 } Day;
 
-const std::array<Day, 4> kDayLookUpTable {{
+const std::array<Day, 5> kDayLookUpTable {{
   {&aoc::D1P1, &aoc::D1P2},
   {&aoc::D2P1, &aoc::D2P2},
   {&aoc::D3P1, &aoc::D3P2},
   {&aoc::D4P1, &aoc::D4P2},
+  {&aoc::D5P1, &aoc::D5P2},
 }};
 
 
