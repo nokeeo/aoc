@@ -61,8 +61,10 @@ struct LabState {
 
   bool MoveGuard() {
     std::pair<Point, Point> next = GuardNextPosDir();
-    if (!hit_wall.insert({next.first, next.second}).second) {
-      return false;
+    if (next.second != guard_dir) {
+      if (!hit_wall.insert({next.first, next.second}).second) {
+        return false;
+      }
     }
     guard_pos = next.first;
     guard_dir = next.second;
