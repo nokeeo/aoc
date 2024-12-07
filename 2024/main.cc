@@ -10,8 +10,8 @@ using namespace std::chrono;
 constexpr int kDefaultBenchmarkRunCount = 100;
 
 typedef struct Day {
-  std::function<int(std::ifstream&)> part_1;
-  std::function<int(std::ifstream&)> part_2;
+  std::function<int64_t(std::ifstream&)> part_1;
+  std::function<int64_t(std::ifstream&)> part_2;
 } Day;
 
 const std::array<Day, 7> kDayLookUpTable {{
@@ -40,8 +40,8 @@ class StopWatch {
   high_resolution_clock::time_point start_;
 };
 
-void RunPart(std::function<int(std::ifstream&)> func, const std::string& title, std::ifstream& input, bool should_benchmark) {
-  int result = -1;
+void RunPart(std::function<int64_t(std::ifstream&)> func, const std::string& title, std::ifstream& input, bool should_benchmark) {
+  int64_t result = -1;
   double time_ms = 0;
   if (should_benchmark) {
     StopWatch stop_watch;
