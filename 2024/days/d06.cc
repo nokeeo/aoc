@@ -1,4 +1,4 @@
-#include "days.h"
+#include "d06.h"
 
 #include <unordered_map>
 #include <unordered_set>
