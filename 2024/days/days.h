@@ -9,5 +9,6 @@
 #include "d06.h"
 #include "d07.h"
 #include "d08.h"
+#include "d09.h"
 
 #endif  // DAYS_H_
