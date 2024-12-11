@@ -14,7 +14,7 @@ typedef struct Day {
   std::function<int64_t(std::ifstream&)> part_2;
 } Day;
 
-const std::array<Day, 10> kDayLookUpTable {{
+const std::array<Day, 11> kDayLookUpTable {{
   {&aoc::D1P1, &aoc::D1P2},
   {&aoc::D2P1, &aoc::D2P2},
   {&aoc::D3P1, &aoc::D3P2},
@@ -25,6 +25,7 @@ const std::array<Day, 10> kDayLookUpTable {{
   {&aoc::D8P1, &aoc::D8P2},
   {&aoc::D9P1, &aoc::D9P2},
   {&aoc::D10P1, &aoc::D10P2},
+  {&aoc::D11P1, &aoc::D11P2},
 }};
 
 

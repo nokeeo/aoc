@@ -51,6 +51,7 @@ int64_t D10P1(std::ifstream& input) {
   Map map = ParseMap(input);
   int total = 0;
   for (const auto& head : map.trail_heads) {
+    // BFS for each trailhead.
     std::vector<TraverseState> states = {{head, 1, {}}};
     std::unordered_set<Point> final_states;
     while (states.size() > 0) {
@@ -83,6 +84,7 @@ int64_t D10P2(std::ifstream& input) {
   for (const auto& head : map.trail_heads) {
     std::vector<TraverseState> states = {{head, 1, {}}};
     while (states.size() > 0) {
+      // BFS for each trailhead.
       auto state = states.front();
       if (*map.topo.at(state.p) == 9) {
         final_states.push_back(state);
