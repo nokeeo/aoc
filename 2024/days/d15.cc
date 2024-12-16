@@ -1,6 +1,7 @@
 #include "d15.h"
 
 #include <iostream>
+#include <unordered_set>
 
 #include "grid.h"
 
@@ -25,17 +26,40 @@ std::pair<int, int> GetGridSize(std::ifstream& input) {
   return {width, height};
 }
 
-Warehouse ParseWarehouse(std::ifstream& input) {
+Warehouse ParseWarehouse(std::ifstream& input, bool p2) {
   std::string line;
   auto[width, height] = GetGridSize(input);
+  if (p2) {
+    width *= 2; 
+  }
+
   Grid<char> floor = Grid<char>(width, height, Grid<char>::NeighborMode::kOrthoginal);
   int y = 0;
   Point robot{0, 0};
   while (std::getline(input, line) && line != "") {
     for (int x = 0; x < line.size(); ++x) {
-      floor.assign({x, y}, line.at(x));
+      int grid_x = (p2) ? x * 2 : x;
+      if (p2) {
+        const char& c = line.at(x);
+        char c1;
+        char c2;
+        if (c == 'O') {
+          c1 = '[';
+          c2 = ']';
+        } else if (c == '@') {
+          c1 = c;
+          c2 = '.';
+        } else {
+          c1 = c;
+          c2 = c;
+        }
+        floor.assign({grid_x, y}, c1);
+        floor.assign({grid_x + 1, y}, c2);
+      } else {
+        floor.assign({grid_x, y}, line.at(x));
+      } 
       if (line.at(x) == '@') {
-        robot = {x, y};
+        robot = {grid_x, y};
       }
     }
     ++y;
@@ -58,29 +82,52 @@ Point GetMovementVector(char c) {
 }
 
 void MoveRobot(Warehouse& warehouse, const Point& dir) {
-  Point free_space = warehouse.robot + dir;
-  bool can_move = false;
-  while (warehouse.floor.InBounds(free_space)) {
+  std::vector<Point> free_spaces = {warehouse.robot + dir};
+  std::vector<Point> points_to_move;
+  std::unordered_set<Point> visited;
+  bool can_move = true;
+  while (!free_spaces.empty()) {
+    Point free_space = free_spaces.front();
+    free_spaces.erase(free_spaces.begin());
+    if (visited.contains(free_space)) {
+      continue;
+    }
+    points_to_move.push_back(free_space);
+    visited.emplace(free_space);
+    if (!warehouse.floor.InBounds(free_space)) {
+      can_move = false;
+      break;
+    }
+
     const char& c = *warehouse.floor.at(free_space);
     if (c == '.') {
-      can_move = true;
-      break;
+      // Do nothing.
     } else if (c == 'O') {
-      free_space = free_space + dir;
+      free_spaces.push_back(free_space + dir);
     } else if (c == '#') {
+      can_move = false;
       break;
+    } else if (c == '[') {
+      free_spaces.push_back(free_space + dir);
+      if (abs(dir.x) != 1) {
+        free_spaces.push_back(free_space + Point{1, 0} + dir);
+      }
+    } else if (c == ']') {
+      free_spaces.push_back(free_space + dir);
+      if (abs(dir.x) != 1) {
+        free_spaces.push_back(free_space + Point{-1, 0} + dir);
+      }
     } else {
-      std::cout << c << free_space.x << " " << free_space.y << std::endl;
       throw std::runtime_error("Unrecognized character");
     }
   }
 
   if (can_move) {
     Point r_dir = {-dir.x, -dir.y};
-    for (Point p = free_space; p != warehouse.robot; p = p + r_dir) {
-      char temp = *warehouse.floor.at(p);
-      warehouse.floor.assign(p, *warehouse.floor.at(p + r_dir));
-      warehouse.floor.assign(p + r_dir, temp);
+    for (auto r_itr = points_to_move.rbegin(); r_itr != points_to_move.rend(); ++r_itr) {
+      char temp = *warehouse.floor.at(*r_itr);
+      warehouse.floor.assign(*r_itr, *warehouse.floor.at(*r_itr + r_dir));
+      warehouse.floor.assign(*r_itr + r_dir, temp);
     }
     warehouse.robot = warehouse.robot + dir;
   }
@@ -89,7 +136,7 @@ void MoveRobot(Warehouse& warehouse, const Point& dir) {
 int GetBoxScore(Warehouse& warehouse) {
   int score = 0;
   for (auto itr = warehouse.floor.begin(); itr != warehouse.floor.end(); ++itr) {
-    if (*itr != 'O') {
+    if (*itr != 'O' && *itr != '[') {
       continue;
     }
     score += itr.point().y * 100 + itr.point().x;
@@ -100,7 +147,7 @@ int GetBoxScore(Warehouse& warehouse) {
 
 namespace aoc {
 int64_t D15P1(std::ifstream& input) {
-  Warehouse warehouse = ParseWarehouse(input);
+  Warehouse warehouse = ParseWarehouse(input,/*p2=*/false);
   std::string line;
   while (std::getline(input, line)) {
     for (int i = 0; i < line.size(); ++i) {
@@ -112,6 +159,14 @@ int64_t D15P1(std::ifstream& input) {
 }
 
 int64_t D15P2(std::ifstream& input) {
-  return 0;
+  Warehouse warehouse = ParseWarehouse(input,/*p2=*/true);
+  std::string line;
+  while (std::getline(input, line)) {
+    for (int i = 0; i < line.size(); ++i) {
+      Point dir = GetMovementVector(line.at(i));
+      MoveRobot(warehouse, dir);
+    }
+  }
+  return GetBoxScore(warehouse);
 }
 }  // namespace aoc
