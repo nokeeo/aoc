@@ -123,15 +123,6 @@ int64_t D16P2(std::ifstream& input) {
       path_points.insert(p);
     }
   }
-  // int count = 1;
-  // for (auto itr = maze.tiles.begin(); itr != maze.tiles.end(); ++itr) {
-  //   for (const auto& s : final_states) {
-  //     if (s.path.contains(itr.point())) {
-  //       ++count;
-  //       break;
-  //     }
-  //   }
-  // }
-  return path_points.size();
+  return path_points.size() + 1;
 }
 }  // namespace aoc
