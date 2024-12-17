@@ -1,7 +1,6 @@
 #include "d16.h"
 
 #include <unordered_set>
-#include <iostream>
 
 #include "grid.h"
 #include "parse.h"
@@ -42,39 +41,38 @@ Maze ParseMaze(std::ifstream& input) {
   };
 }
 
-}  // namespace
+std::vector<TraverseState> BestPaths(Maze& maze) {
+  int lowest_cost = std::numeric_limits<int>::max();
+  std::vector<TraverseState> final_states;
+  Grid<std::unordered_map<Point, int>> cache(maze.tiles.width(), maze.tiles.height());
+  for (auto itr = cache.begin(); itr != cache.end(); ++itr) {
+    constexpr int kMax = std::numeric_limits<int>::max();
+    *itr = {
+      {Point{1, 0}, kMax},
+      {Point{-1, 0}, kMax},
+      {Point{0, 1}, kMax},
+      {Point{0, -1}, kMax},
+    };
+  }
 
-namespace aoc {
-int64_t D16P1(std::ifstream& input) {
-  Maze maze = ParseMaze(input);
   std::vector<TraverseState> states = {{
     maze.start,
     {1, 0},
     0,
     {},
   }};
-  std::unordered_set<Point> visited;
-  while (!states.empty()) {
+  while (!states.empty() && states.back().cost <= lowest_cost) {
     TraverseState state = states.back();
     states.erase(states.end() - 1);
-    if (visited.contains(state.p)) {
+    if ((*cache.at(state.p))[state.dir] < state.cost) {
       continue;
     }
-    visited.emplace(state.p);
+    (*cache.at(state.p))[state.dir] = state.cost;
 
     if (*maze.tiles.at(state.p) == 'E') {
-      // for (auto itr = maze.tiles.begin(); itr != maze.tiles.end(); ++itr) {
-      //   if (itr.new_row()) {
-      //     std::cout << std::endl;
-      //   }
-      //   if (state.path.contains(itr.point())) {
-      //     std::cout << "0";
-      //   } else {
-      //     std::cout << *itr;
-      //   }
-      // }
-      // std::cout << std::endl;
-      return state.cost;
+      lowest_cost = state.cost;
+      final_states.emplace_back(std::move(state));
+      continue;
     }
 
     std::vector<std::pair<Point, const char*>> neighbors = maze.tiles.neighbors(state.p);
@@ -92,8 +90,6 @@ int64_t D16P1(std::ifstream& input) {
       } else {
         continue;
       }
-      // float theta = acos((dir.x * n_dir.x + dir.y * n_dir.y) / (sqrt(pow(dir.x, 2) + pow(dir.y, 2.f)) * sqrt(pow(n_dir.x, 2) + pow(n_dir.y, 2))));
-      // int cost_delta = theta < std::numeric_limits<float>::epsilon() ? 1 : (theta / (M_PI / 2.f)) * 1000;
       std::unordered_set<Point> path = state.path;
       path.emplace(n.first);
       states.push_back({
@@ -107,10 +103,29 @@ int64_t D16P1(std::ifstream& input) {
       return s1.cost > s2.cost;
     });
   }
-  return -1;
+  return final_states;
+}
+}  // namespace
+
+namespace aoc {
+int64_t D16P1(std::ifstream& input) {
+  Maze maze = ParseMaze(input);
+  std::vector<TraverseState> final_states = BestPaths(maze);
+  return final_states.empty() ? -1 : final_states.front().cost; 
 }
 
 int64_t D16P2(std::ifstream& input) {
-  return 0;
+  Maze maze = ParseMaze(input);
+  std::vector<TraverseState> final_states = BestPaths(maze);
+  int count = 1;
+  for (auto itr = maze.tiles.begin(); itr != maze.tiles.end(); ++itr) {
+    for (const auto& s : final_states) {
+      if (s.path.contains(itr.point())) {
+        ++count;
+        break;
+      }
+    }
+  }
+  return count;
 }
 }  // namespace aoc
