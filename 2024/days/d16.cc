@@ -17,7 +17,7 @@ struct TraverseState {
   Point p;
   Point dir;
   int cost;
-  std::unordered_set<Point> path;
+  std::vector<Point> path;
 };
 
 Maze ParseMaze(std::ifstream& input) {
@@ -90,8 +90,8 @@ std::vector<TraverseState> BestPaths(Maze& maze) {
       } else {
         continue;
       }
-      std::unordered_set<Point> path = state.path;
-      path.emplace(n.first);
+      std::vector<Point> path = state.path;
+      path.push_back(n.first);
       states.push_back({
         n.first,
         n.first - state.p,
@@ -117,15 +117,21 @@ int64_t D16P1(std::ifstream& input) {
 int64_t D16P2(std::ifstream& input) {
   Maze maze = ParseMaze(input);
   std::vector<TraverseState> final_states = BestPaths(maze);
-  int count = 1;
-  for (auto itr = maze.tiles.begin(); itr != maze.tiles.end(); ++itr) {
-    for (const auto& s : final_states) {
-      if (s.path.contains(itr.point())) {
-        ++count;
-        break;
-      }
+  std::unordered_set<Point> path_points;
+  for (const auto& s : final_states) {
+    for (const auto& p : s.path) {
+      path_points.insert(p);
     }
   }
-  return count;
+  // int count = 1;
+  // for (auto itr = maze.tiles.begin(); itr != maze.tiles.end(); ++itr) {
+  //   for (const auto& s : final_states) {
+  //     if (s.path.contains(itr.point())) {
+  //       ++count;
+  //       break;
+  //     }
+  //   }
+  // }
+  return path_points.size();
 }
 }  // namespace aoc
