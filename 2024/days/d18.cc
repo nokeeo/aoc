@@ -13,6 +13,7 @@ using namespace aoc;
 struct TraverseState {
   Point p;
   int steps = 0;
+  std::vector<Point> path;
 };
 
 template <typename T>
@@ -79,51 +80,52 @@ bool DropBytes(std::ifstream& input, Grid<char>& memory, int byte_count, Point* 
   return true;
 }
 
-int GetShortestPathSteps(Grid<char>& memory, Queue<TraverseState>& queue) {
+TraverseState GetShortestPathSteps(Grid<char>& memory, Queue<TraverseState>& queue) {
   Point end_point = {static_cast<int>(memory.width()) - 1, static_cast<int>(memory.height()) - 1};
   Grid<int> visited(static_cast<int>(memory.width()), static_cast<int>(memory.height()));
   queue.push({{0, 0}, 0});
   while (queue.size() > 0) {
-    const TraverseState& s = queue.front();
+    TraverseState& s = queue.front();
     if (*visited.at(s.p) == 1) {
       queue.pop();
       continue;
     }
     visited.assign(s.p, 1);
     if (s.p == end_point) {
-      return s.steps;
+      return s;
     }
 
     Point top = s.p + Point{0, -1};
+    s.path.push_back(s.p);
     if (memory.InBounds(top)) {
       if (*memory.at(top) == '.') {
-        queue.push({top, s.steps + 1});
+        queue.push({top, s.steps + 1, s.path});
       }
     }
 
     Point bottom = s.p + Point{0, 1};
     if (memory.InBounds(bottom)) {
       if (*memory.at(bottom) == '.') {
-        queue.push({bottom, s.steps + 1});
+        queue.push({bottom, s.steps + 1, s.path});
       }
     }
 
     Point left = s.p + Point{-1, 0};
     if (memory.InBounds(left)) {
       if (*memory.at(left) == '.') {
-        queue.push({left, s.steps + 1});
+        queue.push({left, s.steps + 1, s.path});
       }
     }
 
     Point right = s.p + Point{1, 0};
     if (memory.InBounds(right)) {
       if (*memory.at(right) == '.') {
-        queue.push({right, s.steps + 1});
+        queue.push({right, s.steps + 1, s.path});
       }
     }
     queue.pop();
   }
-  return -1;
+  return {};
 }
 }  // namespace
 
@@ -134,21 +136,34 @@ int64_t D18P1(std::ifstream& input) {
   Grid<char> memory = CreateMemory(kSize);
   DropBytes(input, memory, kBytesToDrop, nullptr);
   Queue<TraverseState> queue(500);
-  return GetShortestPathSteps(memory, queue);
+  return GetShortestPathSteps(memory, queue).steps;
 }
 
 int64_t D18P2(std::ifstream& input) {
   constexpr int kSize = 71;
   Grid<char> memory = CreateMemory(kSize);
   Point p{0, 0};
-  do {
-    Queue<TraverseState> queue(500);
-    int shortest_path_steps = GetShortestPathSteps(memory, queue);
-    if (shortest_path_steps == -1) {
-      std::cout << p.x << "," << p.y << std::endl;
-      return 0;
-    } 
-  } while(DropBytes(input, memory, 1, &p));
+  Queue<TraverseState> queue(500);
+  std::unordered_set<Point> path;
+  TraverseState state = GetShortestPathSteps(memory, queue);
+  for (const auto p : state.path) {
+    path.insert(p);
+  }
+
+  while(DropBytes(input, memory, 1, &p)) {
+    if (path.contains(p)) {
+      queue.clear();
+      TraverseState state = GetShortestPathSteps(memory, queue);
+      if (state.steps == 0) {
+        std::cout << p.x << "," << p.y << std::endl;
+        return 0;
+      } 
+      path.clear();
+      for (const auto p : state.path) {
+        path.insert(p);
+      }
+    }
+  }
   return -1;
 }
 }  // namespace aoc
