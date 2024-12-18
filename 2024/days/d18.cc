@@ -1,5 +1,6 @@
 #include "d18.h"
 
+#include <algorithm>
 #include <iostream>
 #include <unordered_set>
 #include <queue>
@@ -12,6 +13,44 @@ using namespace aoc;
 struct TraverseState {
   Point p;
   int steps = 0;
+};
+
+template <typename T>
+class Queue {
+  public:
+  explicit Queue(int size) {
+    data_.resize(size);
+  }
+
+  void push(const T& v) {
+    data_[back_] = v;
+    back_ = (back_ + 1) % data_.size();
+  }
+
+  T& front() {
+    return data_[front_];
+  }
+
+  void pop() {
+    front_ = (front_ + 1) % data_.size();
+  }
+
+  int size() const {
+    if (front_ <= back_) {
+      return back_ - front_; 
+    } 
+    return data_.size() - front_ + back_;
+  }
+
+  void clear() {
+    front_ = 0;
+    back_ = 0;
+  }
+
+  private:
+  int front_ = 0;
+  int back_ = 0;
+  std::vector<T> data_;
 };
 
 Grid<char> CreateMemory(int size) {
@@ -40,12 +79,11 @@ bool DropBytes(std::ifstream& input, Grid<char>& memory, int byte_count, Point* 
   return true;
 }
 
-int GetShortestPathSteps(Grid<char>& memory) {
+int GetShortestPathSteps(Grid<char>& memory, Queue<TraverseState>& queue) {
   Point end_point = {static_cast<int>(memory.width()) - 1, static_cast<int>(memory.height()) - 1};
   Grid<int> visited(static_cast<int>(memory.width()), static_cast<int>(memory.height()));
-  std::queue<TraverseState> queue;
   queue.push({{0, 0}, 0});
-  while (!queue.empty()) {
+  while (queue.size() > 0) {
     const TraverseState& s = queue.front();
     if (*visited.at(s.p) == 1) {
       queue.pop();
@@ -56,12 +94,33 @@ int GetShortestPathSteps(Grid<char>& memory) {
       return s.steps;
     }
 
-    std::vector<std::pair<Point, const char*>> neighbors = memory.neighbors(s.p);
-    for (const auto& n : neighbors) {
-      if (*n.second == '.') {
-        queue.push({n.first, s.steps + 1});
+    Point top = s.p + Point{0, -1};
+    if (memory.InBounds(top)) {
+      if (*memory.at(top) == '.') {
+        queue.push({top, s.steps + 1});
       }
-    } 
+    }
+
+    Point bottom = s.p + Point{0, 1};
+    if (memory.InBounds(bottom)) {
+      if (*memory.at(bottom) == '.') {
+        queue.push({bottom, s.steps + 1});
+      }
+    }
+
+    Point left = s.p + Point{-1, 0};
+    if (memory.InBounds(left)) {
+      if (*memory.at(left) == '.') {
+        queue.push({left, s.steps + 1});
+      }
+    }
+
+    Point right = s.p + Point{1, 0};
+    if (memory.InBounds(right)) {
+      if (*memory.at(right) == '.') {
+        queue.push({right, s.steps + 1});
+      }
+    }
     queue.pop();
   }
   return -1;
@@ -74,7 +133,8 @@ int64_t D18P1(std::ifstream& input) {
   constexpr int kBytesToDrop = 1024;
   Grid<char> memory = CreateMemory(kSize);
   DropBytes(input, memory, kBytesToDrop, nullptr);
-  return GetShortestPathSteps(memory);
+  Queue<TraverseState> queue(500);
+  return GetShortestPathSteps(memory, queue);
 }
 
 int64_t D18P2(std::ifstream& input) {
@@ -82,7 +142,8 @@ int64_t D18P2(std::ifstream& input) {
   Grid<char> memory = CreateMemory(kSize);
   Point p{0, 0};
   do {
-    int shortest_path_steps = GetShortestPathSteps(memory);
+    Queue<TraverseState> queue(500);
+    int shortest_path_steps = GetShortestPathSteps(memory, queue);
     if (shortest_path_steps == -1) {
       std::cout << p.x << "," << p.y << std::endl;
       return 0;
