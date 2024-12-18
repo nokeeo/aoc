@@ -42,16 +42,16 @@ bool DropBytes(std::ifstream& input, Grid<char>& memory, int byte_count, Point* 
 
 int GetShortestPathSteps(Grid<char>& memory) {
   Point end_point = {static_cast<int>(memory.width()) - 1, static_cast<int>(memory.height()) - 1};
+  Grid<int> visited(static_cast<int>(memory.width()), static_cast<int>(memory.height()));
   std::queue<TraverseState> queue;
   queue.push({{0, 0}, 0});
-  std::unordered_set<Point> visited;
   while (!queue.empty()) {
     const TraverseState& s = queue.front();
-    if (visited.contains(s.p)) {
+    if (*visited.at(s.p) == 1) {
       queue.pop();
       continue;
     }
-    visited.insert(s.p);
+    visited.assign(s.p, 1);
     if (s.p == end_point) {
       return s.steps;
     }
