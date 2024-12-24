@@ -2,7 +2,6 @@
 
 #include <iostream>
 #include <unordered_map>
-#include <unordered_set>
 
 #include "parse.h"
 
@@ -40,28 +39,28 @@ Shop ParseShop(std::ifstream& input) {
   };
 }
 
-bool IsDesignValid(const std::string& design, int index, std::vector<std::string>& patterns, std::unordered_set<std::string>& failed) {
+int64_t GetValidDesignCount(const std::string& design, int index, std::vector<std::string>& patterns, std::unordered_map<std::string, int64_t>& cache) {
   std::string_view design_sub = std::string_view(design).substr(index);
-  if (failed.contains(design.substr(index))) {
-    return false;
+  auto cache_hit = cache.find(design.substr(index));
+  if (cache_hit != cache.end()) {
+    return cache_hit->second;
   }
+
+  int64_t count = 0;
   for (const auto p : patterns) {
     if (p.at(0) > design_sub.at(0)) {
       break;
     }
     if (design_sub.starts_with(p)) {
       if (design_sub.size() == p.size()) {
-        return true;
-      }
-      bool is_valid = IsDesignValid(design, index + p.size(), patterns, failed);
-      if (is_valid) {
-        return true;
+        ++count;
       } else {
-        failed.insert(std::string(design_sub));
+        count += GetValidDesignCount(design, index + p.size(), patterns, cache);
       }
     }
   }
-  return false;
+  cache.insert({std::string(design_sub), count});
+  return count;
 }
 
 }  // namespace
@@ -71,8 +70,8 @@ int64_t D19P1(std::ifstream& input) {
   Shop shop = ParseShop(input);
   int valid_designs = 0;
   for (auto design : shop.designs) {
-    std::unordered_set<std::string> failed;
-    if (IsDesignValid(design, 0, shop.patterns, failed)) {
+    std::unordered_map<std::string, int64_t> cache;
+    if (GetValidDesignCount(design, 0, shop.patterns, cache)) {
       ++valid_designs;
     } 
   }
@@ -80,6 +79,12 @@ int64_t D19P1(std::ifstream& input) {
 }
 
 int64_t D19P2(std::ifstream& input) {
-  return 0;
+  Shop shop = ParseShop(input);
+  int64_t possible_pattern_combos = 0;
+  for (auto design : shop.designs) {
+    std::unordered_map<std::string, int64_t> cache;
+    possible_pattern_combos += GetValidDesignCount(design, 0, shop.patterns, cache);
+  }
+  return possible_pattern_combos;
 }
 }  // namespace aoc
