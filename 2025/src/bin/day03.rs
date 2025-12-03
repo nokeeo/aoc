@@ -2,6 +2,8 @@ use std::env;
 use std::fs::File;
 use std::io::{self, BufRead};
 
+// --- Day 3: Lobby ---
+
 struct FindMaxResult {
   i: usize,
   value: u32,
