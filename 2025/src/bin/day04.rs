@@ -64,19 +64,19 @@ fn part_2(filename: &str) -> Result<u64, Box<dyn std::error::Error>> {
   let mut removed_count = 0;
   while removed {
     removed = false;
-    let mut indicies_to_remove: Vec<(usize, usize)> = Vec::new();
+    let mut indices_to_remove: Vec<(usize, usize)> = Vec::new();
     for (row_index, row) in grid.rows_iter().enumerate() {
       for (column_index, element) in row.enumerate() {
         if *element == '@' && adjacent_roll_count(row_index, column_index, &grid) < 4 {
           removed = true;
-          indicies_to_remove.push((row_index, column_index));
+          indices_to_remove.push((row_index, column_index));
         }
       }
     }
 
     if removed {
-      removed_count += indicies_to_remove.len();
-      for index in indicies_to_remove {
+      removed_count += indices_to_remove.len();
+      for index in indices_to_remove {
         grid.set(index.0, index.1, '.');
       }
     }
