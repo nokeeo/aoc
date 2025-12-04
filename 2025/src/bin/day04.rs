@@ -8,7 +8,12 @@ use std::io::{self, BufRead};
 fn main() -> Result<(), Box<dyn std::error::Error>> {
   let args: Vec<String> = env::args().collect();
   println!("{}", part_1(&args[1])?);
+
+  use std::time::Instant;
+  let now = Instant::now();
   println!("{}", part_2(&args[1])?);
+  let elapsed = now.elapsed();
+  println!("Elapsed: {:.2?}", elapsed);
   Ok(())
 }
 
@@ -59,23 +64,24 @@ fn part_2(filename: &str) -> Result<u64, Box<dyn std::error::Error>> {
   let mut removed_count = 0;
   while removed {
     removed = false;
-    let mut index_to_remove: (usize, usize) = (0, 0);
-    'gridLoop: for (row_index, row) in grid.rows_iter().enumerate() {
+    let mut indicies_to_remove: Vec<(usize, usize)> = Vec::new();
+    for (row_index, row) in grid.rows_iter().enumerate() {
       for (column_index, element) in row.enumerate() {
         if *element == '@' && adjacent_roll_count(row_index, column_index, &grid) < 4 {
           removed = true;
-          index_to_remove = (row_index, column_index);
-          break 'gridLoop;
+          indicies_to_remove.push((row_index, column_index));
         }
       }
     }
 
     if removed {
-      grid.set(index_to_remove.0, index_to_remove.1, '.');
-      removed_count += 1;
+      removed_count += indicies_to_remove.len();
+      for index in indicies_to_remove {
+        grid.set(index.0, index.1, '.');
+      }
     }
   }
-  Ok(removed_count)
+  Ok(removed_count as u64)
 }
 
 fn adjacent_roll_count(row: usize, column: usize, grid: &Array2D<char>) -> u32 {
