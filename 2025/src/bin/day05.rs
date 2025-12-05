@@ -75,36 +75,6 @@ fn merge_ranges(ranges: &Vec<std::ops::RangeInclusive<u64>>) -> Vec<std::ops::Ra
     i = j;
   }
   merged_ranges
-
-  // let mut merged = true;
-  // let mut ranges = ranges.clone();
-
-  // let mut merged_ranges: Vec<std::ops::RangeInclusive<u64>> = Vec::new();
-  // while merged {
-  //   merged = false;
-  //   for (index, r1) in ranges.iter().enumerate() {
-  //     let mut merged_r1 = false;
-  //     for r2 in &ranges[index + 1..] {
-  //       if r2.start() < r1.end() || r1.start() < r2.end() {
-  //         merged = true;
-  //         let lower = std::cmp::min(r1.start(), r2.start());
-  //         let upper = std::cmp::max(r1.end(), r2.end()); 
-  //         merged_ranges.push(*lower..=*upper);
-  //         merged_r1 = true;
-  //         break;
-  //       }
-  //     }
-
-  //     if !merged_r1 {
-  //       merged_ranges.push(r1.clone());
-  //     }
-  //   }
-
-  //   if merged {
-  //     ranges = merged_ranges.clone();
-  //   }
-  // }
-  // merged_ranges
 }
 
 fn parse_ranges<T>(iter: &mut T) -> Vec<std::ops::RangeInclusive<u64>>
