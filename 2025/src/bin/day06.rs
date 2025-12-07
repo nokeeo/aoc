@@ -2,6 +2,8 @@ use std::env;
 use std::fs::File;
 use std::io::{self, BufRead};
 
+--- Day 6: Trash Compactor ---
+
 fn main() -> Result<(), Box<dyn std::error::Error>> {
   let args: Vec<String> = env::args().collect();
   println!("{}", part_1(&args[1])?);
